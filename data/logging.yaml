@@ -15,18 +15,7 @@ handlers:
     formatter: simple
 #    stream: ext://sys.stderr
 
-  file:
-    class: logging.FileHandler
-    level: DEBUG
-    formatter: full
-    filename: 'def.log'
-
 loggers:
-  base_file:
-    level: DEBUG
-    handlers: [file]
-    propagate: no
-
   base_console:
     level: DEBUG
     handlers: [console]
