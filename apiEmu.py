@@ -58,7 +58,7 @@ def getID(text):
 def treatText(text):
     configFile = './data/treatment.json'
 
-    if os.path.isfile(configFile):
+    if os.path.isfile(util.relPath(configFile)):
         with open(util.relPath(configFile)) as tFile:
             treatmentConfig = json.load(tFile)
     else:

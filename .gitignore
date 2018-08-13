@@ -3,7 +3,4 @@ test*
 lib/xpdf/*
 !lib/xpdf/.gitkeep
 
-data/*
-!data/.gitkeep
-
 *.pyc

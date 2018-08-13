@@ -5,12 +5,20 @@ import sys
 import itertools
 
 import logging
+from logging.config import dictConfig
+
 import json
+import yaml
 
 try:
     from . import apiEmu
 except ImportError:
     import apiEmu
+
+try:
+    from . import util
+except ImportError:
+    import util
 
 def pdfWalk(folder):
     def listFiles(directory,type = 'pdf'):
@@ -25,15 +33,16 @@ def pdfWalk(folder):
     return(allPaths)
 
 if __name__ == '__main__':
+    with open(util.relPath('data/logging.yaml')) as file:
+        logConf = yaml.load(file)
 
-    logging.basicConfig(level = 0)
+    dictConfig(logConf)
+
     cl = logging.getLogger('base_console')
-    cl.setLevel('DEBUG')
 
     tgtFolder = sys.argv[1]
-    if len(sys.argv) > 2:
-        outFile = sys.argv[2]
-    else:
+    outFile = sys.argv[2]
+    if outFile == 'stdout':
         outFile = sys.stdout
 
     if '-d' in sys.argv:
@@ -51,4 +60,5 @@ if __name__ == '__main__':
         with open(outFile,'w') as file:
             json.dump(formatted,file)
     else:
-        print(json.dumps(formatted),file = sys.stdout)
+        jsonText = json.dumps(formatted)
+        sys.stdout.write(jsonText)
