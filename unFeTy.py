@@ -65,6 +65,9 @@ if __name__ == '__main__':
 
     cl = logging.getLogger('console')
 
+if '-i' in sys.argv or '--interactive' in sys.argv:
+    tgtFolder = sys.argv[1]
+else:
     config = json.load(sys.stdin)
     tgtFolder = config['pdf folder']
 
@@ -74,13 +77,35 @@ if __name__ == '__main__':
                     db = rconf['db'])
     
 
-    if os.path.isdir(tgtFolder):
-        pdfs = pdfWalk(tgtFolder)
+if os.path.isdir(tgtFolder):
+    pdfs = pdfWalk(tgtFolder)
+else:
+    raise NotADirectoryError('Pdf directory %s not found'%(tgtFolder))
+
+####################################
+## HERE it GOES
+
+formatted = [apiEmu.pdfToFormatted(f) for f in pdfs]
+
+## Here it GOES
+####################################
+
+if '-f' in sys.argv:
+
+    try:
+        fpath = sys.argv[sys.argv.index('-f')+1]
+    except IndexError:
+        cl.warning('No outfile path given, writing to /tmp')
+        fpath = '/tmp'
+
+    if os.path.isdir(fpath):
+        with open(os.path.join(fpath,'out.csv'),'w') as ofile:
+                cl.info('writing to %s'%(os.path.join(fpath,'out.csv')))
+                ofile.write(str(formatted))
     else:
-        raise NotADirectoryError('Pdf directory %s not found'%(tgtFolder))
+        raise NotADirectoryError('Outfile directory %s not found'%(fpath))
 
-    formatted = [apiEmu.pdfToFormatted(f) for f in pdfs]
-
+else:
     for formatted_pdf in formatted:
         r.lpush('data',formatted_pdf)
 
