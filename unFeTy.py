@@ -2,6 +2,12 @@
 
 import os
 import sys
+
+mypath = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(mypath)
+
+import redis
+
 import itertools
 
 import logging
@@ -9,6 +15,9 @@ from logging.config import dictConfig
 
 import json
 import yaml
+
+####################################
+# What is this even
 
 try:
     from . import apiEmu
@@ -19,6 +28,8 @@ try:
     from . import util
 except ImportError:
     import util
+
+####################################
 
 def pdfWalk(folder):
     def listFiles(directory,type = 'pdf'):
@@ -32,33 +43,53 @@ def pdfWalk(folder):
     allPaths = list(itertools.chain.from_iterable(allPaths))
     return(allPaths)
 
+    
 if __name__ == '__main__':
-    with open(util.relPath('data/logging.yaml')) as file:
-        logConf = yaml.load(file)
 
-    dictConfig(logConf)
+    # Argument stuff, ##############
+    # Replaced by new dfi scheme ###
+#
+#    tgtFolder = sys.argv[1]
+#    outFile = sys.argv[2]
+#    if outFile == 'stdout':
+#        outFile = sys.stdout
+#
+#    if '-d' in sys.argv:
+#        cl.setLevel('DEBUG')
+#    elif '-i' in sys.argv:
+#        cl.setLevel('INFO')
+#    else:
+#        cl.setLevel('WARNING')
+#
+    ################################
 
-    cl = logging.getLogger('base_console')
+    cl = logging.getLogger('console')
 
-    tgtFolder = sys.argv[1]
-    outFile = sys.argv[2]
-    if outFile == 'stdout':
-        outFile = sys.stdout
+    config = json.load(sys.stdin)
+    tgtFolder = config['pdf folder']
 
-    if '-d' in sys.argv:
-        cl.setLevel('DEBUG')
-    elif '-i' in sys.argv:
-        cl.setLevel('INFO')
+    rconf = config['redis']
+    r = redis.Redis(host = rconf['hostname'],
+                    port = rconf['port'],
+                    db = rconf['db'])
+    
+
+    if os.path.isdir(tgtFolder):
+        pdfs = pdfWalk(tgtFolder)
     else:
-        cl.setLevel('WARNING')
+        raise NotADirectoryError('Pdf directory %s not found'%(tgtFolder))
 
-    pdfs = pdfWalk(tgtFolder)
     formatted = [apiEmu.pdfToFormatted(f) for f in pdfs]
 
-    if outFile is not sys.stdout:
-        cl.debug('Writing %i docs to %s'%(len(formatted),outFile))
-        with open(outFile,'w') as file:
-            json.dump(formatted,file)
-    else:
-        jsonText = json.dumps(formatted)
-        sys.stdout.write(jsonText)
+    for formatted_pdf in formatted:
+        r.lpush('data',formatted_pdf)
+
+#    outFile = sys.stdout
+#
+#    if outFile is not sys.stdout:
+#        cl.debug('Writing %i docs to %s'%(len(formatted),outFile))
+#        with open(outFile,'w') as file:
+#            json.dump(formatted,file)
+#    else:
+#        jsonText = json.dumps(formatted)
+#        sys.stdout.write(jsonText)

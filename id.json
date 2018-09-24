@@ -1,0 +1,9 @@
+{
+ "name":"unFeTy xpdf",
+ "interpreter":"python3",
+ "executable":"unFeTy.py",
+ "options":
+ {
+	 "pdf folder":"freetext" 
+ }
+}
