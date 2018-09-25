@@ -1,6 +1,6 @@
 
 separator - Document [A-Za-z0-9]{25}
-headline - .*(?=\s+([1-9],)?[0-9]{1,4} words)
+headline - (\b[A-Z][A-Za-z]*\b)+
 date - (?P<day>[0-9]{1,2}) (?P<month>(January|February|March|April|May|June|July|August|September|October|November|December)) (?P<year>([0-9]{4}))
-source - (?<=[0-9]{4})(?P<source>[^(©|\(c\))]+)(?=(©|\(c\)))
-
+source - (?<=[0-9]{4})(?P<source>[^( |\(c\))]+)(?=( |\(c\)))
+rinse - Page +[0-9]{1,4} +of +[0-9]{1,4} +[0-9]{4} +Factiva, +Inc. +All +rights +reserved.

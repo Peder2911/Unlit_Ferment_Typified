@@ -58,4 +58,4 @@ if __name__ == '__main__':
         for sentry in entry:
             print(sentry['date'])
             print(sentry['source'])
-            print(sentry['body'][:20])
+            print(sentry['body'][:100])

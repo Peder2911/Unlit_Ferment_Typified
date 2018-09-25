@@ -30,15 +30,20 @@ class PdfDoc():
         res = []
         
         for doc in docs:
+            doc = re.sub(docFormat['rinse'],' ',doc)
             row = {}
             row['body'] = doc
-            row['headline'] = self.safeRe(docFormat['headline'],doc)
+            
+            lead = re.split(docFormat['date'],doc)[0]
+            row['headline'] = self.safeRe(docFormat['headline'],lead)
+
             row['date'] = self.safeRe(docFormat['date'],doc)
             row['source'] = self.safeRe(docFormat['source'],doc)
             res.append(row)
     
         return(res)
     def safeRe(self,pattern,string):
+        # Returns first match, if match, otherwise returns NA
         srch = re.search(pattern,string)
         if srch:
             match = srch.group(0)
