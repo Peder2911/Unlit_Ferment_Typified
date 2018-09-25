@@ -1,6 +1,9 @@
 ### Unlit_Ferment_Typified
 
-This script is a simple implementation of xpdf, where a folder containing .pdf files are turned into a .json-formatted data-stream that mimics a web-api.
-http://www.xpdfreader.com/index.html
+This is an implementation of the [XPDF](http://www.xpdfreader.com/index.html) pdf parser. The scripts uses .pres formatted files to parse the raw text from the PDFs to retrieve metadata like dates and headlines.
 
-To use, download xpdf, and place it in the ./lib/xpdf folder, then run the unFeTy.py-script.
+Currently implemented to facilitate work on my [thesis](https://github.com/peder2911/thesis2018-2019). 
+
+Works as a data source for [DFI](https://github.com/peder2911/Diverse_Folio_Isle). 
+
+Remember to run install.sh before running. This downloads the XPDF binaries. If you need something other than 64bit Linux binaries, you must install these yourself. Place the binaries into the lib/xpdf folder.
