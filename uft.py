@@ -20,7 +20,7 @@ if __name__ == '__main__':
     # argument stuff ###############
 
     if len(sys.argv) == 1:
-        raise Exception('Usage : [pdfpath]')
+        raise Exception('Usage : python3 uft.py pdf_directory [--fp formatPres][--dfi][-v][--dbg][-o outfile]')
 
     if '--dbg' in sys.argv:
         logging.basicConfig(level = 'DEBUG')
