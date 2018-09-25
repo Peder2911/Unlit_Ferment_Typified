@@ -9,6 +9,7 @@ from lib import LodWriter
 from lib import filefuncs
 from lib import listfuncs
 
+import csv
 import json
 import itertools
 
@@ -26,6 +27,11 @@ if __name__ == '__main__':
         logging.basicConfig(level = 'DEBUG')
     elif '-v' in sys.argv:
         logging.basicConfig(level = 'INFO')
+
+    if '--gf' in sys.argv:
+        chosenFormat = 'generalFormat'
+    else:
+        chosenFormat = 'fulltext'
 
     # dfi compatibility
 
@@ -67,9 +73,12 @@ if __name__ == '__main__':
     def getData(pdfs,formatPres):
         data = [doc.generalFormat(formatPresPath) for doc in pdfs]
         data = list(itertools.chain.from_iterable(data))
+
         return(data)
 
-    if len(pdfs) > 10:
+    # chunk or not #################
+
+    if len(pdfs) > 50:
         chunks = [*listfuncs.chunk(pdfs,10)]
         cl.info('split into %i chunks'%(len(chunks)))
 
@@ -77,21 +86,40 @@ if __name__ == '__main__':
 
         for n,chnk in enumerate(chunks):
             cl.info('working with chunk %i'%(n))
-            data = getData(chnk,formatPresPath)
 
-            if n == 0:
-                fmode = 'w'
+            if chosenFormat == 'generalFormat': 
+                data = getData(chnk,formatPresPath)
+
+                if n == 0:
+                    fmode = 'w'
+                else:
+                    fmode = 'a'
+
+                with open(outfile,fmode) as file:
+                    Writer = LodWriter.LodWriter(data,file)
+                    Writer.write()
+
             else:
-                fmode = 'a'
+                data = {d.filename:str(d) for d in chnk}
 
-            with open(outfile,fmode) as file:
-                Writer = LodWriter.LodWriter(data,file)
-                Writer.write()
+                for filename,content in data.items():
+                    directory = os.path.dirname(outfile)
+                    filename = filename + '.txt'
+
+                    with open(os.path.join(directory,filename),'w') as file:
+                        file.write(content)
+                    
+
+    # No chunk #####################
 
     else:
-        data = [doc.generalFormat(formatPresPath) for doc in pdfs]
-        data = list(itertools.chain.from_iterable(data))
+        data = getData(pdfs,formatPresPath)
 
         with open('out.csv','w') as file:
-            Writer = LodWriter.LodWriter(data,file)
-            Writer.write()
+            try:
+                Writer = LodWriter.LodWriter(data,file)
+                Writer.write()
+            except AttributeError:
+                for n,doc in enumerate(data):
+                    file.write('{id}{data}'.format(id = n,data = doc))
+
