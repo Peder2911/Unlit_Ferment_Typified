@@ -1,7 +1,0 @@
-
-separator - Document [A-Za-z0-9]{25}
-slseparator - (?:[0-9]{1,2},)?[0-9]{1,3} +words 
-headline - ^.*(?=\n[0-9]{1,4} words)
-date - (?P<day>[0-9]{1,2}) (?P<month>(January|February|March|April|May|June|July|August|September|October|November|December)) (?P<year>([0-9]{4}))
-source - ([A-Z][A-Za-z]* ?){2,}
-rinse - Page +[0-9]{1,4} +of +[0-9]{1,4} +[0-9]{4} +Factiva, +Inc. +All +rights +reserved.
