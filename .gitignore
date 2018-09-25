@@ -2,5 +2,8 @@
 test*
 lib/xpdf/*
 !lib/xpdf/.gitkeep
+data/*
+!data/defaultformat.pres
 
 *.pyc
+*.csv

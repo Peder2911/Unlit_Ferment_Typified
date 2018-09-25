@@ -5,30 +5,29 @@ mypath = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(mypath)
 
 from lib import PdfDoc
+from lib import LodWriter
+from lib import filefuncs
+from lib import listfuncs
 
 import json
 import itertools
 
 import logging
-
-def pdfWalk(folder):
-    def listFiles(directory,type = 'pdf'):
-        dir = directory[0]
-        files = directory[2]
-        folderPaths = [os.path.join(dir,f) for f in files if f[-3:] == type]
-        folderPaths = [os.path.abspath(f) for f in folderPaths]
-        return(folderPaths)
-
-    allPaths = [listFiles(dir) for dir in os.walk(folder)]
-    allPaths = list(itertools.chain.from_iterable(allPaths))
-    return(allPaths)
+cl = logging.getLogger('console')
 
 if __name__ == '__main__':
+
+    # argument stuff ###############
+
     if len(sys.argv) == 1:
         raise Exception('Usage : [pdfpath]')
 
-    if '-d' in sys.argv:
-        logging.basicConfig(level = 0)
+    if '--dbg' in sys.argv:
+        logging.basicConfig(level = 'DEBUG')
+    elif '-v' in sys.argv:
+        logging.basicConfig(level = 'INFO')
+
+    # dfi compatibility
 
     if '--dfi' in sys.argv:
         config = json.load(sys.stdin)
@@ -48,14 +47,51 @@ if __name__ == '__main__':
     
     formatPresPath = os.path.join(mypath,formatPresPath)
 
+    try:
+        outfile = sys.argv[sys.argv.index('-o')+1]
+    except (IndexError,ValueError):
+        outfile = 'out.csv'
+
+    outfile = os.path.join(mypath,outfile)
+
+    # gather paths and make docs ###
+
     if os.path.isdir(tgtFolder):
-        pdfs = [PdfDoc.PdfDoc(d) for d in pdfWalk(tgtFolder)]
+        paths = filefuncs.pdfWalk(tgtFolder)
+        pdfs = [PdfDoc.PdfDoc(path) for path in paths] 
     else:
         raise NotADirectoryError('Pdf directory %s not found'%(tgtFolder))
 
-    data = [doc.generalFormat(formatPresPath) for doc in pdfs]
-    for entry in data:
-        for sentry in entry:
-            print(sentry['date'])
-            print(sentry['source'])
-            print(sentry['body'][:100])
+    # get and merge data ###########
+
+    def getData(pdfs,formatPres):
+        data = [doc.generalFormat(formatPresPath) for doc in pdfs]
+        data = list(itertools.chain.from_iterable(data))
+        return(data)
+
+    if len(pdfs) > 10:
+        chunks = [*listfuncs.chunk(pdfs,10)]
+        cl.info('split into %i chunks'%(len(chunks)))
+
+        data = []
+
+        for n,chnk in enumerate(chunks):
+            cl.info('working with chunk %i'%(n))
+            data = getData(chnk,formatPresPath)
+
+            if n == 0:
+                fmode = 'w'
+            else:
+                fmode = 'a'
+
+            with open(outfile,fmode) as file:
+                Writer = LodWriter.LodWriter(data,file)
+                Writer.write()
+
+    else:
+        data = [doc.generalFormat(formatPresPath) for doc in pdfs]
+        data = list(itertools.chain.from_iterable(data))
+
+        with open('out.csv','w') as file:
+            Writer = LodWriter.LodWriter(data,file)
+            Writer.write()
