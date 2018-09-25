@@ -1,7 +1,8 @@
 {
- "name":"unFeTy xpdf",
+ "name":"uft xpdf",
  "interpreter":"python3",
- "executable":"unFeTy.py",
+ "executable":"uft.py",
+ "args":"--dfi",
  "options":
  {
 	 "pdf folder":"freetext" 
