@@ -14,12 +14,7 @@ class LodWriter():
         
         colnames = [*self.lodData[0].keys()]
         
-        if self.fileobj.mode == 'w':
-            writer.writerow(colnames)
-
-        else:
-            # append
-            pass
+        writer.writerow(colnames)
 
         for line in self.lodData:
             row = []
