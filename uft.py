@@ -86,69 +86,25 @@ if __name__ == '__main__':
         # or in simple string format
         # returns data in a single, flat list.
 
-        fauxfile = io.StringIO()
 
         if dataFormat == 'generalFormat':
             data = [doc.generalFormat(pres) for doc in pdfs]
             data = list(itertools.chain.from_iterable(data))
 
+            fauxfile = io.StringIO()
             Writer = LodWriter.LodWriter(data,fauxfile)
             Writer.write()
-                
             data = fauxfile.getvalue()
+            del(fauxfile)
 
+            # data = json.dumps(data)
         else:
             data = [str(pdf) for pdf in pdfs]
             data = [d.replace('\n',' ') for d in data]
             data = '\n'.join(data)
 
-        del(fauxfile)
 
         return(data)
-
-#    def writeData(docs,target,dataformat, pres = None, streamname = None, mode = None):
-#
-#        data = getData(docs,dataformat = dataformat,pres = pres) 
-#
-#        try:
-#            # is target redis?
-#            target.ping()
-#        except AttributeError:
-#            ttype = 'file'
-#            
-#            if dataformat == 'generalFormat':
-#                with open(target,mode) as file:
-#                    Writer = LodWriter.LodWriter(data,file)
-#                    Writer.Write()
-#
-#                    cl.info('wrote to %s'%(file.name))
-#                   filesize = int(os.stat(target).st_size)/1000000
-#                    cl.info('file currently at %f megabytes'%(filesize))
-#
-#            else:
-#                filenames = [d.filename for d in docs]
-#                data = zip(filenames,data)
-#
-#                for filename,content in data.items():
-#                    directory = os.path.dirname(outFile)
-#                    filename = filename + '.txt'
-
-#                    with open(os.path.join(directory,filename),'w') as file:
-#                        cl.info('wrote to %s'%(file.name))
-#                        file.write(content)
-#        else:
-#            ttype = 'redis'
-#
-#            if dataformat == 'generalFormat':
-#                for dat in data:
-#                    strRep = json.dumps(dat)
-#                    r.lpush(streamname,strRep)
-#            else:
-#                for dat in data:
-#                    r.lpush(streamname,strRep)
-#
-#
-    # chunk or not #################
 
     if len(pdfs) > 50:
         chunks = [*listfuncs.chunk(pdfs,10)]
