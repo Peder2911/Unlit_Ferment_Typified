@@ -21,7 +21,9 @@ if __name__ == '__main__':
     # argument stuff ###############
 
     if len(sys.argv) == 1:
-        raise Exception('Usage : python3 uft.py pdf_directory [--fp formatPres][--dfi][-v][--dbg][-o outfile]')
+        print('''Usage : python3 uft.py pdf_directory 
+                 [--fp formatPres][--dfi][-v][--dbg][-o outfile][--gf]''')
+        sys.exit(1)
 
     if '--dbg' in sys.argv:
         logging.basicConfig(level = 'DEBUG')
@@ -98,6 +100,9 @@ if __name__ == '__main__':
                 with open(outfile,fmode) as file:
                     Writer = LodWriter.LodWriter(data,file)
                     Writer.write()
+                    cl.info('wrote to file')
+                    filesize = int(os.stat(outfile).st_size)/1000000
+                    cl.info('file currently at %f megabytes'%(filesize))
 
             else:
                 data = {d.filename:str(d) for d in chnk}
