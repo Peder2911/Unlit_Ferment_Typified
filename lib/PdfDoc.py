@@ -72,6 +72,9 @@ class PdfDoc():
                 row['body'] = 'NA'
                 row['source'] = 'NA'
                 row['headline'] = 'NA'
+            
+            for key in row:
+                row[key] = row[key].replace('\n',' ')
 
             res.append(row)
     

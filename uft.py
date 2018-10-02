@@ -8,7 +8,6 @@ import io
 
 from lib import PdfDoc
 from lib import LodWriter
-from lib import RedisFile
 
 from lib import filefuncs
 from lib import listfuncs
@@ -51,8 +50,10 @@ if __name__ == '__main__':
     if '--dfi' in sys.argv:
         # dfi compatibility
         import redis
+        from dfitools import RedisFile
 
         config = json.load(sys.stdin)
+        # print(json.dumps(config))
         tgtFolder = config['pdf folder']
 
         rconf = config['redis']
@@ -118,4 +119,6 @@ if __name__ == '__main__':
     else:
         data = getData(pdfs,dataFormat = chosenFormat,pres = presPath)
         outFile.write(data)
+
+    outFile.close()
     
