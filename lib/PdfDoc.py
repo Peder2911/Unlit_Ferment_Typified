@@ -76,7 +76,10 @@ class PdfDoc():
             for key in row:
                 row[key] = row[key].replace('\n',' ')
 
-            res.append(row)
+            if 'NA' not in row.values():
+                res.append(row)
+            else:
+                cl.warning('Missing @ %s'%(self.filename))
     
         return(res)
 
