@@ -10,7 +10,10 @@ class LodWriter():
         self.fileobj = fileobj
 
     def write(self):
-        writer = csv.writer(self.fileobj)
+        writer = csv.writer(self.fileobj,
+                 quotechar = '|',
+                 delimiter = ',',
+                 quoting = csv.QUOTE_ALL)
         
         colnames = [*self.lodData[0].keys()]
         

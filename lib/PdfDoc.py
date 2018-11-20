@@ -8,6 +8,8 @@ sys.path.append(mypath)
 import Xpdf
 import PresReader
 
+import unidecode
+
 import json
 import re
 
@@ -19,6 +21,7 @@ class PdfDoc():
     def __init__(self,pdfFile):
         self.file = pdfFile
         self.filename = os.path.split(self.file)[1]
+        self.forceUnicode = True
 
     def generalFormat(self,formatPres):
         # Extracts date, headline, body and source from document using a .pres file
@@ -34,14 +37,17 @@ class PdfDoc():
         # validation of sentences.
 
         docFormat = PresReader.get(formatPres)
+        self.text = Xpdf.text(self.file)
 
-        docs = re.split(docFormat['separator'],Xpdf.text(self.file))
+        self.text = unidecode.unidecode(self.text)
+        # self.text = self.text.encode('ascii',errors = 'ignore').decode()
+
+        docs = re.split(docFormat['separator'],self.text)
         docs.pop()
 
         cl.info('%i docs in %s'%(len(docs),self.filename))
 
         res = []
-        
         for doc in docs:
 
             doc = re.sub(docFormat['rinse'],' ',doc)
@@ -73,8 +79,7 @@ class PdfDoc():
                 row['source'] = 'NA'
                 row['headline'] = 'NA'
             
-            for key in row:
-                row[key] = row[key].replace('\n',' ')
+            row = {k : self.csvRinse(v) for k,v in row.items()}
 
             if 'NA' not in row.values():
                 res.append(row)
@@ -82,6 +87,15 @@ class PdfDoc():
                 cl.warning('Missing @ %s'%(self.filename))
     
         return(res)
+
+    def csvRinse(self,string):
+        string = string.replace('\n',' ')
+        string = string.replace('\r',' ')
+        # string = string.replace(',','<<')
+        # string = string.replace('\"','')
+        # string = string.replace('\'','')
+        string = string.replace('|','')
+        return(string)
 
     def safeRe(self,pattern,string):
         # Returns first match, if match, otherwise returns NA
