@@ -1,7 +1,7 @@
 {
  "name":"uft xpdf",
  "interpreter":"python3",
- "executable":"uft2.py",
+ "executable":"uft.py",
  "args":"--dfi --gf -v",
  "options":
  {
